@@ -1,0 +1,15 @@
+
+k = based on the column number of p
+
+C = p x k
+
+inK = inverse of k
+
+C x inK = p
+
+to find inK steps:
+determinant of K. If determinant is not zero we can find the 
+
+cofactor: A is the K matrix
+
+Transpose = the value of columns will be on the row

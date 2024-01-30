@@ -81,7 +81,7 @@ function storeMatrix(numRows, numCols) {
     const matrixId = `matrix_${new Date().getTime()}`;
 
     // Add the new matrix to the array of matrices
-    storedMatrices.push({ id: matrixId, values: matrixValues });
+    storedMatrices.push({ id: matrixId, rows: numRows, cols: numCols, values: matrixValues });
 
     // Store the updated array of matrices in local storage
     localStorage.setItem('matrices', JSON.stringify(storedMatrices));
@@ -198,4 +198,86 @@ function sumMatrix(event) {
 
 function clearLocalStorage() {
     localStorage.removeItem('matrices');
+}
+
+// Function to calculate the cofactor for a specific element in the matrix
+function getCofactorForElement(matrix, row, col) {
+    const numRows = matrix.length;
+    const numCols = matrix[0].length;
+
+    // Check if the matrix is square
+    if (numRows !== numCols) {
+        console.error("Invalid matrix size. Cofactor calculation supports only square matrices.");
+        return null;
+    }
+
+    // Check if the specified row and column are within bounds
+    if (row < 0 || row > numRows || col < 0 || col > numCols) {
+        console.error("Invalid row or column index.");
+        return null;
+    }
+
+    // Calculate the minor matrix
+    const minorMatrix = getMinorMatrix(matrix, row, col);
+
+    // Calculate the determinant of the minor matrix
+    const detMinorMatrix = determinant(minorMatrix);
+
+    // Apply the sign to the determinant based on the position in the original matrix
+    const cofactorValue = ((row + col) % 2 === 0 ? 1 : -1) * detMinorMatrix;
+
+    return cofactorValue;
+}
+
+// Function to get the minor matrix by excluding a specific row and column
+function getMinorMatrix(matrix, row, col) {
+    return matrix
+        .filter((_, i) => i !== row)
+        .map(row => row.filter((_, j) => j !== col));
+}
+
+// Function to calculate the determinant of a matrix (works for any size)
+function determinant(matrix) {
+    const numRows = matrix.length;
+    const numCols = matrix[0].length;
+
+    // Base case for 2x2 matrix
+    if (numRows === 2 && numCols === 2) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+
+    // Recursive calculation for larger matrices
+    let det = 0;
+    for (let col = 0; col < numCols; col++) {
+        const sign = col % 2 === 0 ? 1 : -1;
+        det += sign * matrix[0][col] * determinant(getMinorMatrix(matrix, 0, col));
+    }
+
+    return det;
+}
+
+
+function calCofactor(){
+
+    // Retrieve matrices from local storage
+    const storedMatrices = JSON.parse(localStorage.getItem('matrices')) || [];
+
+    // Check if there are at least two matrices to sum
+    if (storedMatrices.length < 1) {
+        alert("Please store at least one matrices before attempting to calculate cofactor.");
+        return;
+    }
+
+    const row = storedMatrices[0].rows;
+    const col = storedMatrices[0].cols;
+    const matrix = storedMatrices[0].values;
+    const size = matrix.length;
+    console.log('row, col & matrix size: ', row, col, size)
+
+    const cofactorValue = getCofactorForElement(matrix, row, col);
+
+    if (cofactorValue !== null) {
+        console.log(`Cofactor for element at (${row}, ${col}): ${cofactorValue}`);
+    }
+
 }
